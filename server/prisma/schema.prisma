@@ -1,0 +1,227 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  DELIVERED
+  CANCELED
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEOUT
+  DELIVERY
+}
+
+model Tenant {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  logoUrl      String?
+  bannerUrl    String?
+  primaryColor String   @default("#121212")
+  phone        String?
+  address      String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users               User[]
+  categories          Category[]
+  products            Product[]
+  customizationGroups CustomizationGroup[]
+  ingredients         Ingredient[]
+  orders              Order[]
+
+  @@map("tenants")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String?
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  icon      String?
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant             Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products           Product[]
+  // NOVO: Grupos vinculados a esta categoria
+  customizationGroups CategoryCustomizationGroup[]
+
+  @@index([tenantId])
+  @@map("categories")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  tenantId       String
+  categoryId     String
+  name           String
+  description    String?
+  price          Decimal  @db.Decimal(10, 2)
+  imageUrl       String?
+  isCustomizable Boolean  @default(false)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant     Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category   Category                    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+  customizationGroups ProductCustomizationGroup[]
+
+  @@index([tenantId])
+  @@index([categoryId])
+  @@map("products")
+}
+
+model CustomizationGroup {
+  id          String   @id @default(uuid())
+  tenantId    String
+  title       String
+  description String?
+  minSelect   Int      @default(0)
+  maxSelect   Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ingredients Ingredient[]
+  products    ProductCustomizationGroup[]
+  
+  // NOVO: Relação para abranger categorias inteiras de uma vez
+  categories  CategoryCustomizationGroup[]
+
+  @@index([tenantId])
+  @@map("customization_groups")
+}
+
+model CategoryCustomizationGroup {
+  categoryId           String
+  customizationGroupId String
+
+  category           Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  customizationGroup CustomizationGroup @relation(fields: [customizationGroupId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, customizationGroupId])
+  @@map("category_customization_groups")
+}
+
+model ProductCustomizationGroup {
+  productId            String
+  customizationGroupId String
+
+  product            Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customizationGroup CustomizationGroup @relation(fields: [customizationGroupId], references: [id], onDelete: Cascade)
+
+  @@id([productId, customizationGroupId])
+  @@map("product_customization_groups")
+}
+
+model Ingredient {
+  id                   String   @id @default(uuid())
+  tenantId             String
+  customizationGroupId String
+  name                 String
+  price                Decimal  @default(0.00) @db.Decimal(10, 2)
+  available            Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customizationGroup  CustomizationGroup  @relation(fields: [customizationGroupId], references: [id], onDelete: Cascade)
+  selectedIngredients OrderItemIngredient[]
+
+  @@index([tenantId])
+  @@index([customizationGroupId])
+  @@map("ingredients")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  tenantId        String
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  
+  customerName    String?
+  customerPhone   String?
+  deliveryAddress String?
+  paymentMethod   String?
+  
+  orderNumber     Int         @default(autoincrement())
+  status          OrderStatus @default(PENDING)
+  type            OrderType   @default(DELIVERY)
+  total           Decimal
+  notes           String?
+  tableNumber     String?
+
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int      @default(1)
+  unitPrice Decimal  @db.Decimal(10, 2)
+  subtotal  Decimal  @db.Decimal(10, 2)
+  notes     String?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  
+  selectedIngredients OrderItemIngredient[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderItemIngredient {
+  id           String  @id @default(uuid())
+  orderItemId  String
+  ingredientId String
+  quantity     Int     @default(1)
+  unitPrice    Decimal @db.Decimal(10, 2)
+
+  orderItem  OrderItem  @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@map("order_item_ingredients")
+}
