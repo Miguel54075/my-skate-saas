@@ -7,6 +7,6 @@ export default defineConfig({
     path: './prisma/migrations',
   },
   datasource: {
-    url: 'postgresql://postgres:123@localhost:5432/street_burger_db?schema=public', // <-- Sem o env()
+    url: process.env.DATABASE_URL,
   },
 });
