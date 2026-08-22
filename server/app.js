@@ -107,7 +107,6 @@ app.get('/health', async (req, res) => {
 
 const PORT = process.env.PORT || 3333;
 
-// Adicione o '0.0.0.0' antes da porta
 httpServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Servidor Street Burger com WebSockets rodando na porta ${PORT}`);
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
