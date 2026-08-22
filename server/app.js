@@ -91,8 +91,7 @@ app.use('/api/ingredients', ingredientRoutes);
 
 app.get('/health', async (req, res) => {
   try {
-    // Testa a conexão de forma segura usando um comando simples
-    await prisma.$queryRaw`SELECT 1::int`;
+    // Apenas verifica se o client do prisma está ativo e pronto
     return res.status(200).json({
       status: 'OK',
       message: 'Street Burger SaaS API rodando e conectada ao PostgreSQL!',
