@@ -1,12 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-
-dotenv.config();
 
 import prisma from './src/config/prisma.js';
 import authRoutes from './src/routes/authRoutes.js';
@@ -98,12 +96,13 @@ app.use('/api/ingredients', ingredientRoutes);
 
 app.get('/health', async (req, res) => {
   try {
-    // Apenas verifica se o client do prisma está ativo e pronto
+    await prisma.$queryRaw`SELECT 1`;
     return res.status(200).json({
       status: 'OK',
       message: 'Street Burger SaaS API rodando e conectada ao PostgreSQL!',
     });
   } catch (error) {
+    console.error('❌ Health check falhou:', error.message);
     return res.status(500).json({
       status: 'ERROR',
       message: 'Erro ao conectar no banco de dados',
