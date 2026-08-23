@@ -17,6 +17,7 @@ import menuController from './src/controllers/menuController.js';
 import { authMiddleware } from './src/middlewares/authMiddleware.js';
 
 const app = express();
+app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
 // Configuração de Origens Permitidas (CORS) com o link da Vercel hardcoded para evitar falhas
