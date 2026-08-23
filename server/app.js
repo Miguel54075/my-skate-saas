@@ -19,14 +19,26 @@ import { authMiddleware } from './src/middlewares/authMiddleware.js';
 const app = express();
 const httpServer = createServer(app);
 
-// Configuração de Origens Permitidas (CORS)
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3333'];
+// Configuração de Origens Permitidas (CORS) com o link da Vercel hardcoded para evitar falhas
+const allowedOrigins = [
+  'https://my-skate-saas.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3333'
+];
+
+if (process.env.ALLOWED_ORIGINS) {
+  process.env.ALLOWED_ORIGINS.split(',').forEach(origin => {
+    const trimmed = origin.trim();
+    if (trimmed && !allowedOrigins.includes(trimmed)) {
+      allowedOrigins.push(trimmed);
+    }
+  });
+}
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Permite conexões locais/sem origin (como mobile apps ou ferramentas de teste) em dev
+    // Permite conexões locais/sem origin ou se estiver na lista permitida
     if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
@@ -35,11 +47,13 @@ const corsOptions = {
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 // Segurança e Cabeçalhos HTTP
 app.use(helmet());
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Habilita o preflight para todas as rotas
 app.use(express.json());
 
 // Configuração do Socket.io com CORS restrito
