@@ -37,14 +37,7 @@ if (process.env.ALLOWED_ORIGINS) {
 }
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Permite conexões locais/sem origin ou se estiver na lista permitida
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
-      callback(null, true);
-    } else {
-      callback(new Error('Acesso não permitido pelas configurações de segurança (CORS)'));
-    }
-  },
+  origin: true, // Permite qualquer origem automaticamente refletindo o Origin da requisição
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
