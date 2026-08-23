@@ -43,10 +43,9 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
-// Segurança e Cabeçalhos HTTP
+// Segurança e Cabeçalhos HTTP (Sem a linha com o '*' que quebra no Node novo)
 app.use(helmet());
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Habilita o preflight para todas as rotas
 app.use(express.json());
 
 // Configuração do Socket.io com CORS restrito
