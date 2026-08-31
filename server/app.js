@@ -20,6 +20,7 @@ const httpServer = createServer(app);
 
 // Configuração de Origens Permitidas (CORS) com o link da Vercel hardcoded para evitar falhas
 const allowedOrigins = [
+  'https://my-street-burger-saas.vercel.app',
   'https://my-skate-saas.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',

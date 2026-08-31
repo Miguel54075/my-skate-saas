@@ -1,0 +1,7 @@
+{
+  "name": "my-street-burger-saas",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend/web install && npm --prefix frontend/web run build"
+  }
+}

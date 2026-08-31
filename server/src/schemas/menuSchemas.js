@@ -34,11 +34,12 @@ export const createProductSchema = z.object({
   customizationGroupIds: z.array(z.string().uuid('ID de grupo inválido.')).optional().default([]),
 });
 
-// Nota: Esta rota cria ingredientes em lote em múltiplos grupos
+// Nota: Esta rota cria ingredientes em lote nos grupos vinculados às categorias selecionadas
 export const batchCreateIngredientSchema = z.object({
   name: z.string().optional(),
   title: z.string().optional(),
   price: z.preprocess((val) => val ? Number(val) : 0, z.number().nonnegative('O preço não pode ser negativo.').optional().default(0)),
+  categoryIds: z.array(z.string().uuid('ID de categoria inválido.')).optional(),
   customizationGroupIds: z.array(z.string().uuid('ID de grupo inválido.')).optional(),
 }).refine((data) => {
   return data.name || data.title;

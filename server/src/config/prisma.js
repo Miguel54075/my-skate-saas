@@ -20,7 +20,11 @@ try {
 }
 
 // Cria o adaptador do PostgreSQL usando a URL de conexão do ambiente
-const adapter = new PrismaPg({ connectionString: databaseUrl });
+// rejectUnauthorized: false permite conexão com Supabase que usa certificados self-signed
+const adapter = new PrismaPg({ 
+  connectionString: databaseUrl,
+  ssl: { rejectUnauthorized: false },
+});
 
 const prisma = new PrismaClient({
   adapter,
@@ -29,4 +33,4 @@ const prisma = new PrismaClient({
     : ['query', 'info', 'warn', 'error'],
 });
 
-export default prisma;
+export default prisma;

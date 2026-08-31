@@ -42,12 +42,12 @@ class MenuController {
     }
   }
 
-  // 2. Criar Grupo de Customização (ex: "Adicionais do Hamburguer", "Opções de Molho")
+  // 2. Criar Ingrediente/Adicional nos Grupos de Customização vinculados às categorias selecionadas
  async createCustomizationGroup(req, res) {
   try {
     // Aceita tanto 'name' quanto 'title' caso o front-end envie com outro nome
     const ingredientName = req.body.name || req.body.title;
-    const { price, customizationGroupIds } = req.body;
+    const { price, categoryIds, customizationGroupIds } = req.body;
     const tenantId = req.tenantId || req.user?.tenantId; 
 
     if (!tenantId) {
@@ -58,18 +58,35 @@ class MenuController {
       return res.status(400).json({ error: 'O nome do ingrediente/adicional é obrigatório.' });
     }
 
-    // Seus IDs dos grupos fixos (ou os que vieram do front)
-    const groupIdsToUse = customizationGroupIds || [
-      "3ccd8e45-3520-470f-8282-17314cdff5f9",
-      "623d6643-634f-492c-8c6c-a34420654688",
-      "0ca92726-66f6-4e50-92fc-57530ce4af5d"
-    ];
+    let groupIdsToUse = [];
 
-    if (!groupIdsToUse || groupIdsToUse.length === 0) {
-      return res.status(400).json({ error: 'Selecione pelo menos um grupo de customização.' });
+    // Se o frontend enviou categoryIds, busca os grupos vinculados a essas categorias
+    if (categoryIds && categoryIds.length > 0) {
+      const categoryGroups = await prisma.categoryCustomizationGroup.findMany({
+        where: {
+          categoryId: { in: categoryIds },
+          customizationGroup: { tenantId },
+        },
+        select: {
+          customizationGroupId: true,
+        },
+      });
+
+      groupIdsToUse = [...new Set(categoryGroups.map(cg => cg.customizationGroupId))];
+
+      if (groupIdsToUse.length === 0) {
+        return res.status(400).json({ 
+          error: 'Nenhum grupo de customização encontrado para as categorias selecionadas. Certifique-se de que as categorias foram criadas corretamente.' 
+        });
+      }
+    } else if (customizationGroupIds && customizationGroupIds.length > 0) {
+      // Fallback: se enviou customizationGroupIds diretamente
+      groupIdsToUse = customizationGroupIds;
+    } else {
+      return res.status(400).json({ error: 'Selecione pelo menos uma categoria para vincular o adicional.' });
     }
 
-    // Cria o ingrediente em todos os grupos informados
+    // Cria o ingrediente em todos os grupos encontrados
     const createdIngredients = await prisma.ingredient.createMany({
       data: groupIdsToUse.map((groupId) => ({
         name: ingredientName,
