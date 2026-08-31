@@ -1,5 +1,6 @@
 import pkg from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
 
 const { PrismaClient } = pkg;
 
@@ -19,12 +20,14 @@ try {
   console.log('🔗 Prisma conectando ao banco (URL presente)');
 }
 
-// Cria o adaptador do PostgreSQL usando a URL de conexão do ambiente
-// rejectUnauthorized: false permite conexão com Supabase que usa certificados self-signed
-const adapter = new PrismaPg({ 
+// Cria a pool do PostgreSQL com SSL configurado
+const pool = new pg.Pool({
   connectionString: databaseUrl,
   ssl: { rejectUnauthorized: false },
 });
+
+// Cria o adaptador do Prisma usando a Pool configurada
+const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({
   adapter,
