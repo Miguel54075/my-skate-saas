@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useCart } from '../contexts/CartContext';
-import { Plus, ShoppingCart, X, Check } from 'lucide-react';
+import { Plus, ShoppingCart, X, Check, ArrowLeft, Eye } from 'lucide-react';
+import skateLogo from '../assets/images/Skate_Logo.jpg';
 
 // Rotações fixas (efeito "colado à mão") para não recalcular a cada render
 const CARD_TILTS = [-1.6, 1.1, -0.8, 1.7, -1.2, 0.9, -1.9, 1.3];
@@ -193,35 +194,35 @@ export function Menu() {
             {/* Faixa de perigo no topo, tipo fita zebrada de obra */}
             <div className="h-2 sb-hazard" />
 
-            {/* Banner de Topo */}
-            <div className="relative overflow-hidden border-b-4 border-[#0A0A0A]" style={{ background: 'linear-gradient(160deg, #1B1B1A 0%, #121212 70%)' }}>
-              <div className="absolute -top-10 -left-10 w-64 h-64 rounded-full bg-[#FFC700]/10 blur-3xl" />
-              <div className="absolute -bottom-16 right-0 w-72 h-72 rounded-full bg-[#FF3B2F]/10 blur-3xl" />
-              <div className="absolute inset-0 sb-grip opacity-40" />
+            {/* Banner de Topo com Logo e Visual Street Skate */}
+            <div className="relative overflow-hidden border-b-4 border-[#0A0A0A] bg-[#171716]">
+              {/* Luzes e texturas de fundo */}
+              <div className="absolute -top-12 -left-12 w-80 h-80 rounded-full bg-[#FFC700]/15 blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 right-0 w-80 h-80 rounded-full bg-[#FF3B2F]/15 blur-3xl pointer-events-none" />
+              <div className="absolute inset-0 sb-grip opacity-50 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 pointer-events-none" />
 
-              <div className="max-w-3xl mx-auto px-6 pt-10 pb-8 relative z-10">
-                <div className="flex items-center gap-5 sb-fade-up">
+              <div className="max-w-3xl mx-auto px-5 sm:px-6 pt-8 pb-7 relative z-10">
+                <div className="flex items-center gap-5 sm:gap-6 sb-fade-up">
+                  {/* Logo com moldura de adesivo colado */}
                   <div className="relative shrink-0">
-                    {tenant?.logoUrl ? (
-                      <img
-                        src={tenant.logoUrl}
-                        alt={tenant.name}
-                        className="w-20 h-20 object-cover border-2 border-[#FFC700] rotate-[-3deg] shadow-[4px_4px_0_0_#FF3B2F]"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 border-2 border-[#FFC700] bg-[#1B1B1A] flex items-center justify-center text-3xl rotate-[-3deg] shadow-[4px_4px_0_0_#FF3B2F]">
-                        🍔
-                      </div>
-                    )}
+                    <img
+                      src={tenant?.logoUrl || skateLogo}
+                      alt={tenant?.name || 'Skate Burger Street'}
+                      className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-md border-2 border-[#FFC700] rotate-[-2.5deg] shadow-[4px_4px_0_0_#FF3B2F] bg-[#121212]"
+                    />
                     <div className="sb-tape rotate-[-8deg]" style={{ top: -8, left: -10 }} />
+                    <div className="sb-tape rotate-[10deg]" style={{ bottom: -6, right: -8 }} />
                   </div>
-                  <div>
-                    <h1 className="sb-display sb-headline text-4xl sm:text-5xl uppercase leading-none">
+
+                  {/* Informações da Hamburgueria */}
+                  <div className="space-y-1">
+                    <h1 className="sb-display sb-headline text-3xl sm:text-5xl uppercase leading-none tracking-tight">
                       {tenant?.name || 'Skate Burger Street'}
                     </h1>
-                    <p className="text-[#9C9890] text-xs font-semibold flex items-center gap-1.5 mt-2 sb-mono uppercase tracking-wide">
-                      <span className="w-2 h-2 rounded-full bg-[#3FBF5F] sb-flicker" />
-                      Aberto agora · O autentico sabor das ruas
+                    <p className="text-[#9C9890] text-xs font-semibold flex items-center gap-2 pt-1 sb-mono uppercase tracking-wide">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#3FBF5F] sb-flicker shrink-0" />
+                      <span>Aberto agora · O autêntico sabor das ruas</span>
                     </p>
                   </div>
                 </div>
@@ -231,7 +232,7 @@ export function Menu() {
             <main className="max-w-3xl mx-auto px-4 sm:px-6 mt-10 space-y-14">
               {categories.map((category, catIdx) => (
                 <section key={category.id} className="space-y-5 sb-fade-up" style={{ animationDelay: `${catIdx * 90}ms` }}>
-                  {/* Cabecalho de categoria - placa fixada na parede */}
+                  {/* Cabecalho de categoria */}
                   <div className="flex items-center gap-3">
                     <div className="w-1.5 self-stretch sb-hazard rounded-sm" />
                     <div className="flex items-center gap-2.5 flex-1">
@@ -251,7 +252,8 @@ export function Menu() {
                       return (
                         <div
                           key={product.id}
-                          className="group relative bg-[#1B1B1A] border border-[#333] p-4 flex flex-col justify-between transition-all duration-300 hover:!rotate-0 hover:-translate-y-1.5 hover:border-[#FFC700]/50 hover:shadow-[6px_6px_0_0_rgba(255,199,0,0.18)] sb-fade-up"
+                          onClick={() => handleOpenModal(product)}
+                          className="group relative bg-[#1B1B1A] border border-[#333] p-4 flex flex-col justify-between transition-all duration-300 hover:!rotate-0 hover:-translate-y-1.5 hover:border-[#FFC700]/70 hover:shadow-[6px_6px_0_0_rgba(255,199,0,0.22)] sb-fade-up cursor-pointer select-none"
                           style={{ transform: `rotate(${tilt}deg)`, animationDelay: `${catIdx * 90 + prodIdx * 60}ms` }}
                         >
                           <span className="sb-tape rotate-[-6deg]" style={{ top: -9, left: 14 }} />
@@ -259,19 +261,26 @@ export function Menu() {
 
                           <div className="flex gap-3">
                             <div className="flex-1 space-y-1.5">
-                              <h3 className="font-extrabold text-base text-[#F3F1E7] group-hover:text-[#FFC700] transition-colors leading-snug">
-                                {product.name}
+                              <h3 className="font-extrabold text-base text-[#F3F1E7] group-hover:text-[#FFC700] transition-colors leading-snug flex items-center gap-1.5">
+                                <span>{product.name}</span>
                               </h3>
                               <p className="text-[#9C9890] text-xs leading-relaxed line-clamp-2">
-                                {product.description || 'Delicioso item do cardapio feito com ingredientes selecionados.'}
+                                {product.description || 'Delicioso item do cardápio feito com ingredientes selecionados.'}
                               </p>
+                              <span className="inline-flex items-center gap-1 text-[11px] text-[#FFC700]/80 font-medium group-hover:text-[#FFC700] pt-0.5">
+                                <Eye size={12} /> Toque para ver detalhes
+                              </span>
                             </div>
-                            {product.imageUrl && (
+                            {product.imageUrl ? (
                               <img
                                 src={product.imageUrl}
                                 alt={product.name}
-                                className="w-20 h-20 object-cover border border-[#333] transition-transform duration-500 group-hover:rotate-2 group-hover:scale-105"
+                                className="w-20 h-20 object-cover border border-[#333] transition-transform duration-500 group-hover:rotate-2 group-hover:scale-105 shrink-0"
                               />
+                            ) : (
+                              <div className="w-20 h-20 bg-[#121212] border border-[#333] flex items-center justify-center text-2xl group-hover:rotate-2 group-hover:border-[#FFC700]/50 transition-all shrink-0">
+                                🍔
+                              </div>
                             )}
                           </div>
 
@@ -280,7 +289,11 @@ export function Menu() {
                               R$ {Number(product.price).toFixed(2).replace('.', ',')}
                             </span>
                             <button
-                              onClick={() => handleOpenModal(product)}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenModal(product);
+                              }}
                               className="sb-stencil-btn bg-[#FFC700] text-black px-4 py-2 font-black text-[11px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                             >
                               <Plus size={13} className="stroke-[3px]" /> Adicionar
@@ -294,42 +307,69 @@ export function Menu() {
               ))}
             </main>
 
-            {/* Modal - flyer fixado na parede */}
+            {/* Modal / Visualização Individual do Produto */}
             {selectedProduct && (
               <div
-                className={`fixed inset-0 bg-black/92 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${modalClosing ? 'opacity-0' : 'opacity-100'}`}
+                className={`fixed inset-0 bg-black/92 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 transition-opacity duration-200 ${modalClosing ? 'opacity-0' : 'opacity-100'}`}
                 onClick={handleCloseModal}
               >
                 <div
-                  className={`relative bg-[#1B1B1A] border border-[#333] w-full max-w-lg p-6 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl ${modalClosing ? 'sb-modal-out' : 'sb-modal-in'}`}
+                  className={`relative bg-[#1B1B1A] border border-[#333] w-full max-w-lg p-5 sm:p-6 space-y-6 max-h-[92vh] overflow-y-auto shadow-2xl ${modalClosing ? 'sb-modal-out' : 'sb-modal-in'}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <span className="sb-tape rotate-[-3deg]" style={{ top: -10, left: '50%', marginLeft: -23, width: 60, height: 20 }} />
 
-                  <button
-                    onClick={handleCloseModal}
-                    className="absolute top-4 right-4 text-[#9C9890] hover:text-white p-1.5 bg-[#121212] border border-[#333] transition-all hover:rotate-90 duration-300 cursor-pointer"
-                  >
-                    <X size={16} />
-                  </button>
-
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <span className="sb-marker text-xs text-[#FFC700] inline-block -rotate-2">street favorite</span>
-                      <h2 className="sb-display text-2xl uppercase text-[#F3F1E7] mt-1 leading-none">{selectedProduct.name}</h2>
-                      <p className="text-xs text-[#9C9890] mt-2 leading-relaxed">
-                        {selectedProduct.description || 'Personalize seu pedido abaixo com nossos acompanhamentos especiais:'}
-                      </p>
-                    </div>
-                    {selectedProduct.imageUrl && (
-                      <img
-                        src={selectedProduct.imageUrl}
-                        alt={selectedProduct.name}
-                        className="w-24 h-24 object-cover border border-[#333] rotate-2"
-                      />
-                    )}
+                  {/* Barra de Navegação Superior (Voltar ao Cardápio + Fechar) */}
+                  <div className="flex items-center justify-between border-b border-dashed border-[#333] pb-3">
+                    <button
+                      type="button"
+                      onClick={handleCloseModal}
+                      className="flex items-center gap-1.5 text-xs text-[#9C9890] hover:text-[#FFC700] font-bold transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft size={16} /> Voltar ao cardápio
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCloseModal}
+                      className="text-[#9C9890] hover:text-white p-1.5 bg-[#121212] border border-[#333] transition-all hover:rotate-90 duration-300 cursor-pointer"
+                      title="Fechar"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
 
+                  {/* Foto e Informações Principais do Produto */}
+                  <div className="space-y-4">
+                    {selectedProduct.imageUrl ? (
+                      <div className="relative overflow-hidden border-2 border-[#333] bg-[#121212] group">
+                        <img
+                          src={selectedProduct.imageUrl}
+                          alt={selectedProduct.name}
+                          className="w-full h-48 sm:h-56 object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute top-2 right-2 bg-black/80 px-2 py-1 border border-[#FFC700] sb-mono text-xs text-[#FFC700] font-bold">
+                          R$ {Number(selectedProduct.price).toFixed(2).replace('.', ',')}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full h-32 bg-[#121212] border-2 border-dashed border-[#333] flex flex-col items-center justify-center gap-2">
+                        <span className="text-4xl">🛹 🍔</span>
+                        <span className="sb-mono text-[10px] text-[#777] uppercase tracking-wider">Street Burger Artesanal</span>
+                      </div>
+                    )}
+
+                    <div>
+                      <span className="sb-marker text-xs text-[#FFC700] inline-block -rotate-2">street favorite</span>
+                      <h2 className="sb-display text-2xl sm:text-3xl uppercase text-[#F3F1E7] mt-1 leading-none">
+                        {selectedProduct.name}
+                      </h2>
+                      <p className="text-xs sm:text-sm text-[#9C9890] mt-2.5 leading-relaxed bg-[#121212] p-3.5 border border-[#2A2A2A]">
+                        {selectedProduct.description || 'Delicioso item preparado com ingredientes artesanais de alta qualidade.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Grupos de Customização / Adicionais */}
                   <div className="space-y-5">
                     {selectedProduct.customizationGroups && selectedProduct.customizationGroups.length > 0 ? (
                       selectedProduct.customizationGroups.map((relation) => {
@@ -377,26 +417,29 @@ export function Menu() {
                         );
                       })
                     ) : (
-                      <p className="text-xs text-[#9C9890] italic text-center py-4 bg-[#121212] border border-[#2A2A2A]">
-                        Nenhum adicional disponivel para este item.
+                      <p className="text-xs text-[#9C9890] italic text-center py-3 bg-[#121212] border border-[#2A2A2A]">
+                        Nenhum adicional disponível para este item.
                       </p>
                     )}
                   </div>
 
+                  {/* Observações */}
                   <div className="space-y-2 bg-[#121212] p-4 border border-[#2A2A2A]">
-                    <label className="sb-display text-xs text-[#FFC700] uppercase tracking-widest">Observacoes</label>
+                    <label className="sb-display text-xs text-[#FFC700] uppercase tracking-widest">Observações</label>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Ex: Sem cebola, molho a parte, ponto da carne mal passado..."
+                      placeholder="Ex: Sem cebola, ponto da carne mal passado, molho à parte..."
                       rows={2}
                       className="w-full bg-[#1B1B1A] border border-[#333] p-3 text-xs text-white focus:border-[#FFC700] outline-none resize-none transition-all placeholder:text-[#666]"
                     />
                   </div>
 
+                  {/* Rodapé do Modal (Quantidade + Confirmar) */}
                   <div className="flex items-center justify-between pt-4 border-t border-dashed border-[#3A3A3A]">
                     <div className="flex items-center gap-2 bg-[#121212] border border-[#333] p-1">
                       <button
+                        type="button"
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         className="w-8 h-8 font-black text-white hover:text-[#FFC700] transition-all flex items-center justify-center text-lg active:scale-90 cursor-pointer"
                       >
@@ -406,6 +449,7 @@ export function Menu() {
                         {quantity}
                       </span>
                       <button
+                        type="button"
                         onClick={() => setQuantity(quantity + 1)}
                         className="w-8 h-8 font-black text-white hover:text-[#FFC700] transition-all flex items-center justify-center text-lg active:scale-90 cursor-pointer"
                       >
@@ -415,6 +459,7 @@ export function Menu() {
 
                     <button
                       ref={confirmBtnRef}
+                      type="button"
                       onClick={handleConfirmAddToCart}
                       disabled={justAdded}
                       className={`sb-stencil-btn relative font-black px-6 py-3 text-xs uppercase tracking-wider cursor-pointer flex items-center gap-2 ${
