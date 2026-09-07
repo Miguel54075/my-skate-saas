@@ -4,6 +4,8 @@ import { api } from '../services/api';
 import { useCart } from '../contexts/CartContext';
 import { Plus, ShoppingCart, X, Check, ArrowLeft, Eye } from 'lucide-react';
 import skateLogo from '../assets/images/Skate_Logo.jpg';
+import bannerImg from '../assets/images/Banner.png';
+import bgCardapio from '../assets/images/BackGround_Cardapio.jpg';
 
 // Rotações fixas (efeito "colado à mão") para não recalcular a cada render
 const CARD_TILTS = [-1.6, 1.1, -0.8, 1.7, -1.2, 0.9, -1.9, 1.3];
@@ -110,7 +112,7 @@ export function Menu() {
   const finalTotalPrice = finalUnitPrice * quantity;
 
   return (
-    <div className="min-h-screen bg-[#121212] text-[#F3F1E7] pb-32 relative">
+    <div className="min-h-screen bg-[#121212] text-[#F3F1E7] relative flex flex-col">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Work+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
@@ -167,7 +169,7 @@ export function Menu() {
         }
       `}</style>
 
-      <div className="sb-root">
+      <div className="sb-root flex flex-col flex-1">
         <div className="sb-grain" />
 
         {/* Particulas "+1" voando ate o carrinho */}
@@ -195,12 +197,23 @@ export function Menu() {
             <div className="h-2 sb-hazard" />
 
             {/* Banner de Topo com Logo e Visual Street Skate */}
-            <div className="relative overflow-hidden border-b-4 border-[#0A0A0A] bg-[#171716]">
+            <div className="relative overflow-hidden border-b-4 border-[#0A0A0A]">
+              {/* Background Image - Banner.png */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage: `url(${bannerImg})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                }}
+              />
+              {/* Overlay leve para legibilidade sem esconder o banner */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50 pointer-events-none" />
               {/* Luzes e texturas de fundo */}
-              <div className="absolute -top-12 -left-12 w-80 h-80 rounded-full bg-[#FFC700]/15 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-16 right-0 w-80 h-80 rounded-full bg-[#FF3B2F]/15 blur-3xl pointer-events-none" />
-              <div className="absolute inset-0 sb-grip opacity-50 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 pointer-events-none" />
+              <div className="absolute -top-12 -left-12 w-60 h-60 rounded-full bg-[#FFC700]/8 blur-3xl pointer-events-none" />
+              <div className="absolute inset-0 sb-grip opacity-15 pointer-events-none" />
 
               <div className="max-w-3xl mx-auto px-5 sm:px-6 pt-8 pb-7 relative z-10">
                 <div className="flex items-center gap-5 sm:gap-6 sb-fade-up">
@@ -229,7 +242,23 @@ export function Menu() {
               </div>
             </div>
 
-            <main className="max-w-3xl mx-auto px-4 sm:px-6 mt-10 space-y-14">
+            <main
+              className="relative px-4 sm:px-6 pb-36 flex-1"
+              style={{
+                backgroundImage: `url(${bgCardapio})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center top',
+                backgroundRepeat: 'repeat-y',
+              }}
+            >
+              {/* Overlay suave sobre a parede grafitada */}
+              <div
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(18,18,18,0.70) 0%, rgba(18,18,18,0.58) 15%, rgba(18,18,18,0.55) 50%, rgba(18,18,18,0.60) 85%, rgba(18,18,18,0.75) 100%)',
+                }}
+              />
+              <div className="max-w-3xl mx-auto mt-10 space-y-14 relative z-10">
               {categories.map((category, catIdx) => (
                 <section key={category.id} className="space-y-5 sb-fade-up" style={{ animationDelay: `${catIdx * 90}ms` }}>
                   {/* Cabecalho de categoria */}
@@ -305,6 +334,7 @@ export function Menu() {
                   </div>
                 </section>
               ))}
+              </div>
             </main>
 
             {/* Modal / Visualização Individual do Produto */}
