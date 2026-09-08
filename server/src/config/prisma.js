@@ -25,8 +25,7 @@ try {
 }
 
 // caminho do certificado CA baixado do Supabase
-const caCertPath = path.join(__dirname, './certificateSSL/prod-ca-2021.crt');
-
+const caCertPath = path.join(__dirname, '../certificateSSL/prod-ca-2021.crt');
 let caCert;
 try {
   caCert = fs.readFileSync(caCertPath).toString();
