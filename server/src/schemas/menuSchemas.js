@@ -11,6 +11,8 @@ export const createCategorySchema = z.object({
   order: z.number().int().optional().default(0),
 });
 
+export const updateCategorySchema = createCategorySchema.partial();
+
 export const createProductSchema = z.object({
   categoryId: z.string({
     required_error: 'A categoria do produto é obrigatória.',
@@ -28,13 +30,15 @@ export const createProductSchema = z.object({
   }).nonnegative('O preço não pode ser negativo.')),
   
   imageUrl: z.string().optional().nullable(),
+  modelUrl: z.string().optional().nullable(),
   
   isCustomizable: z.boolean().optional().default(true),
   
   customizationGroupIds: z.array(z.string().uuid('ID de grupo inválido.')).optional().default([]),
 });
 
-// Nota: Esta rota cria ingredientes em lote nos grupos vinculados às categorias selecionadas
+export const updateProductSchema = createProductSchema.partial();
+
 export const batchCreateIngredientSchema = z.object({
   name: z.string().optional(),
   title: z.string().optional(),

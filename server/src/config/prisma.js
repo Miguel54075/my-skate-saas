@@ -1,55 +1,46 @@
 import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// necessário para obter __dirname em ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const databaseUrl = process.env.DATABASE_URL;
+const rawDatabaseUrl = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
+if (!rawDatabaseUrl) {
   console.error('❌ FATAL: A variável de ambiente DATABASE_URL não está definida!');
   process.exit(1);
 }
 
-let parsed;
-try {
-  parsed = new URL(databaseUrl);
-  console.log(`🔗 Prisma conectando ao banco: ${parsed.host}${parsed.pathname}`);
-} catch {
-  console.error('❌ FATAL: DATABASE_URL inválida!');
-  process.exit(1);
+// 1. Ajuste para o PgBouncer no Supabase (porta 6543)
+let connectionString = rawDatabaseUrl;
+if (connectionString.includes('6543') && !connectionString.includes('pgbouncer=true')) {
+  connectionString += connectionString.includes('?') ? '&pgbouncer=true' : '?pgbouncer=true';
 }
 
-// caminho do certificado CA baixado do Supabase
-const caCertPath = path.join(__dirname, '../certificateSSL/prod-ca-2021.crt');
-let caCert;
-try {
-  caCert = fs.readFileSync(caCertPath).toString();
-  console.log('🔒 Certificado SSL carregado com sucesso.');
-} catch (err) {
-  console.error(`❌ FATAL: Não foi possível ler o certificado SSL em ${caCertPath}`);
-  console.error(err.message);
-  process.exit(1);
-}
+// 2. Remove parâmetros de SSL da URL para impedir que o 'pg' ignore o objeto de SSL abaixo
+const parsedUrl = new URL(connectionString);
+parsedUrl.searchParams.delete('sslmode');
+parsedUrl.searchParams.delete('ssl');
 
-const adapter = new PrismaPg({
-  host: parsed.hostname,
-  port: Number(parsed.port) || 5432,
-  user: decodeURIComponent(parsed.username),
-  password: decodeURIComponent(parsed.password),
-  database: parsed.pathname.slice(1),
-  ssl: {
-    ca: caCert,
-    rejectUnauthorized: true, // agora valida de verdade, usando o CA correto
-  },
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+// 3. Localiza o certificado SSL local (se disponível)
+const certPath = path.resolve(__dirname, '../certificateSSL/prod-ca-2021.crt');
+const hasCert = fs.existsSync(certPath);
+
+// 4. Configura o SSL diretamente no driver PG
+const sslOption = hasCert
+  ? { ca: fs.readFileSync(certPath).toString(), rejectUnauthorized: false }
+  : { rejectUnauthorized: false };
+
+const pool = new Pool({
+  connectionString: parsedUrl.toString(),
+  ssl: sslOption,
 });
+
+const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({
   adapter,

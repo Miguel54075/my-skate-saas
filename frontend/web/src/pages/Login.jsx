@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { Flame, Lock, Mail } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -21,7 +23,7 @@ export function Login() {
       navigate('/admin/kds');
     } catch (err) {
       console.error(err);
-      alert('Falha na autenticação. Verifique e-mail e senha.');
+      toast.error('Falha na autenticação. Verifique e-mail e senha.');
     } finally {
       setLoading(false);
     }
@@ -29,46 +31,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-[#121212] flex items-center justify-center p-4 relative overflow-hidden">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Work+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
-        .sb-root, .sb-root * { font-family: 'Work Sans', sans-serif; }
-        .sb-display { font-family: 'Anton', sans-serif; letter-spacing: 0.02em; }
-        .sb-marker { font-family: 'Permanent Marker', cursive; }
-        .sb-mono { font-family: 'Space Mono', monospace; }
-
-        .sb-grain { position: fixed; inset: 0; pointer-events: none; z-index: 45; opacity: 0.05; mix-blend-mode: overlay;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-        .sb-grip { background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 6px 6px; }
-
-        .sb-hazard { background-image: repeating-linear-gradient(135deg, #FFC700, #FFC700 14px, #121212 14px, #121212 28px); }
-
-        @keyframes sb-fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes sb-flicker { 0%, 100% { opacity: 1; } 45% { opacity: 1; } 46% { opacity: 0.3; } 47% { opacity: 1; } 78% { opacity: 1; } 79% { opacity: 0.35; } 80% { opacity: 1; } }
-        @keyframes sb-wobble { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(4deg); } }
-
-        .sb-fade-up { animation: sb-fadeUp 0.55s cubic-bezier(0.16,1,0.3,1) both; }
-        .sb-flicker { animation: sb-flicker 3.6s ease-in-out infinite; }
-        .sb-wobble { animation: sb-wobble 2.4s ease-in-out infinite; }
-
-        .sb-tape { position: absolute; width: 46px; height: 16px; background: rgba(243,241,231,0.14); border: 1px solid rgba(243,241,231,0.18); box-shadow: 0 2px 4px rgba(0,0,0,0.35); }
-
-        .sb-stencil-btn { position: relative; box-shadow: 3px 3px 0 0 #FF3B2F; transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .sb-stencil-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 #FF3B2F; }
-        .sb-stencil-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 #FF3B2F; }
-        .sb-stencil-btn:disabled { opacity: 0.5; pointer-events: none; }
-
-        .sb-headline { color: #F3F1E7; text-shadow: 2px 2px 0 #FF3B2F; }
-
-        .sb-input { background: #121212; border: 1px solid #333; color: #F3F1E7; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .sb-input:focus { border-color: #FFC700; box-shadow: 0 0 0 3px rgba(255,199,0,0.12); outline: none; }
-        .sb-input::placeholder { color: #666; }
-
-        @media (prefers-reduced-motion: reduce) {
-          .sb-fade-up, .sb-flicker, .sb-wobble { animation: none !important; }
-        }
-      `}</style>
 
       <div className="sb-root w-full flex items-center justify-center">
         <div className="sb-grain" />

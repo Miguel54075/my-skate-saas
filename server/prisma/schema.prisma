@@ -94,6 +94,7 @@ model Product {
   description    String?
   price          Decimal  @db.Decimal(10, 2)
   imageUrl       String?
+  modelUrl       String?
   isCustomizable Boolean  @default(false)
   active         Boolean  @default(true)
   createdAt      DateTime @default(now())

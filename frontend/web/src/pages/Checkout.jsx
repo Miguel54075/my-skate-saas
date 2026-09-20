@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../services/api';
 import { ArrowLeft, Trash2, Send, PlusCircle, ShoppingBag } from 'lucide-react';
 
@@ -14,6 +15,7 @@ export function Checkout() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { cart, removeFromCart, clearCart, cartTotal } = useCart();
+  const toast = useToast();
 
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -25,12 +27,12 @@ export function Checkout() {
     e.preventDefault();
 
     if (!customerName || !customerPhone || !deliveryAddress) {
-      alert('Por favor, preencha todos os campos do formulário.');
+      toast.warning('Por favor, preencha todos os campos do formulário.');
       return;
     }
 
     if (cart.length === 0) {
-      alert('Seu carrinho está vazio.');
+      toast.warning('Seu carrinho está vazio.');
       return;
     }
 
@@ -42,7 +44,7 @@ export function Checkout() {
       const tenantId = tenantData.id || tenantData.tenantId;
 
       if (!tenantId) {
-        alert('Não foi possível identificar a hamburgueria. Verifique o link acessado.');
+        toast.error('Não foi possível identificar a hamburgueria. Verifique o link acessado.');
         return;
       }
 
@@ -73,11 +75,11 @@ export function Checkout() {
       await api.post('/orders/public', orderPayload);
 
       clearCart();
-      alert('Pedido enviado com sucesso para a cozinha! 🍔');
+      toast.success('Pedido enviado com sucesso para a cozinha! 🍔');
       navigate(`/${slug}`);
     } catch (err) {
       console.error('Erro ao enviar pedido:', err);
-      alert('Ocorreu um erro ao enviar o pedido. Tente novamente.');
+      toast.error('Ocorreu um erro ao enviar o pedido. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -85,46 +87,7 @@ export function Checkout() {
 
   return (
     <div className="min-h-screen bg-[#121212] text-[#F3F1E7] pb-16 relative">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Work+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
-        .sb-root, .sb-root * { font-family: 'Work Sans', sans-serif; }
-        .sb-display { font-family: 'Anton', sans-serif; letter-spacing: 0.02em; }
-        .sb-marker { font-family: 'Permanent Marker', cursive; }
-        .sb-mono { font-family: 'Space Mono', monospace; }
-
-        .sb-grain { position: fixed; inset: 0; pointer-events: none; z-index: 45; opacity: 0.05; mix-blend-mode: overlay;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-        .sb-hazard { background-image: repeating-linear-gradient(135deg, #FFC700, #FFC700 14px, #121212 14px, #121212 28px); }
-
-        @keyframes sb-fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes sb-fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes sb-pop { 0% { transform: scale(1); } 40% { transform: scale(1.06); } 100% { transform: scale(1); } }
-        @keyframes sb-shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
-
-        .sb-fade-up { animation: sb-fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
-        .sb-fade-in { animation: sb-fadeIn 0.35s ease both; }
-        .sb-pop { animation: sb-pop 0.3s ease; }
-        .sb-shake { animation: sb-shake 0.5s ease; }
-
-        .sb-tape { position: absolute; width: 46px; height: 16px; background: rgba(243,241,231,0.14); border: 1px solid rgba(243,241,231,0.18); box-shadow: 0 2px 4px rgba(0,0,0,0.35); }
-
-        .sb-stencil-btn { position: relative; box-shadow: 3px 3px 0 0 #FF3B2F; transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .sb-stencil-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 #FF3B2F; }
-        .sb-stencil-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 #FF3B2F; }
-        .sb-stencil-btn:disabled { opacity: 0.5; pointer-events: none; }
-
-        .sb-headline { color: #F3F1E7; text-shadow: 3px 3px 0 #FF3B2F; }
-
-        .sb-input { background: #121212; border: 1px solid #333; color: #F3F1E7; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .sb-input:focus { border-color: #FFC700; box-shadow: 0 0 0 3px rgba(255,199,0,0.12); outline: none; }
-        .sb-input::placeholder { color: #666; }
-
-        @media (prefers-reduced-motion: reduce) {
-          .sb-fade-up, .sb-fade-in, .sb-pop, .sb-shake { animation: none !important; }
-        }
-      `}</style>
 
       <div className="sb-root">
         <div className="sb-grain" />

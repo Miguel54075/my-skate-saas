@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const orderTypeEnum = z.enum(['DINE_IN', 'TAKEOUT', 'DELIVERY']);
-const orderStatusEnum = z.enum(['PENDING', 'PREPARING', 'READY', 'DELIVERED', 'CANCELED', 'CANCELLED']);
+const orderStatusEnum = z.enum(['PENDING', 'PREPARING', 'READY', 'DELIVERED', 'CANCELED']);
 
 export const createOrderSchema = z.object({
   tenantId: z.string({

@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { Plus, Tag, Utensils, Layers, ArrowLeft, Trash2, CheckSquare, Square } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 
 export function AdminMenu() {
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Estados de dados
   const [categories, setCategories] = useState([]);
@@ -18,6 +20,8 @@ export function AdminMenu() {
   const [productDescription, setProductDescription] = useState('');
   const [productPrice, setProductPrice] = useState('');
   const [productCategoryId, setProductCategoryId] = useState('');
+  const [productImageUrl, setProductImageUrl] = useState('');
+  const [productModelUrl, setProductModelUrl] = useState('');
 
   const [ingredientName, setIngredientName] = useState('');
   const [ingredientPrice, setIngredientPrice] = useState('');
@@ -61,10 +65,10 @@ export function AdminMenu() {
     try {
       await api.delete(`/menu/categories/${id}`);
       loadData();
-      alert('Categoria excluída com sucesso!');
+      toast.success('Categoria excluída com sucesso!');
     } catch (err) {
       console.error('Erro ao excluir categoria:', err);
-      alert('Erro ao excluir categoria.');
+      toast.error('Erro ao excluir categoria.');
     }
   }
 
@@ -73,10 +77,10 @@ export function AdminMenu() {
     try {
       await api.delete(`/menu/products/${id}`);
       loadData();
-      alert('Produto excluído com sucesso!');
+      toast.success('Produto excluído com sucesso!');
     } catch (err) {
       console.error('Erro ao excluir produto:', err);
-      alert('Erro ao excluir produto.');
+      toast.error('Erro ao excluir produto.');
     }
   }
 
@@ -85,10 +89,10 @@ export function AdminMenu() {
     try {
       await api.delete(`/ingredients/${id}`);
       loadData();
-      alert('Adicional excluído com sucesso!');
+      toast.success('Adicional excluído com sucesso!');
     } catch (err) {
       console.error('Erro ao excluir adicional:', err);
-      alert('Erro ao excluir adicional.');
+      toast.error('Erro ao excluir adicional.');
     }
   }
 
@@ -101,10 +105,10 @@ export function AdminMenu() {
       await api.post('/menu/categories', { name: categoryName });
       setCategoryName('');
       loadData();
-      alert('Categoria criada com sucesso!');
+      toast.success('Categoria criada com sucesso!');
     } catch (err) {
       console.error(err);
-      alert('Erro ao criar categoria.');
+      toast.error('Erro ao criar categoria.');
     }
   }
 
@@ -119,17 +123,21 @@ export function AdminMenu() {
         description: productDescription,
         price: parseFloat(productPrice),
         categoryId: productCategoryId,
+        imageUrl: productImageUrl,
+        modelUrl: productModelUrl,
         isCustomizable: true,
       });
 
       setProductName('');
       setProductDescription('');
       setProductPrice('');
+      setProductImageUrl('');
+      setProductModelUrl('');
       loadData();
-      alert('Produto cadastrado com sucesso!');
+      toast.success('Produto cadastrado com sucesso!');
     } catch (err) {
       console.error('Erro ao cadastrar produto:', err);
-      alert('Erro ao cadastrar produto.');
+      toast.error('Erro ao cadastrar produto.');
     }
   }
 
@@ -145,12 +153,12 @@ export function AdminMenu() {
     e.preventDefault();
 
     if (!ingredientName || !ingredientPrice) {
-      alert('Preencha o nome e o preço do adicional.');
+      toast.warning('Preencha o nome e o preço do adicional.');
       return;
     }
 
     if (selectedCategoryIds.length === 0) {
-      alert('Selecione pelo menos uma categoria onde este adicional vai aparecer.');
+      toast.warning('Selecione pelo menos uma categoria onde este adicional vai aparecer.');
       return;
     }
 
@@ -166,43 +174,15 @@ export function AdminMenu() {
       setIngredientPrice('');
       setSelectedCategoryIds([]);
       loadData();
-      alert('Adicional cadastrado e vinculado com sucesso! 🥓');
+      toast.success('Adicional cadastrado e vinculado com sucesso! 🥓');
     } catch (err) {
       console.error('Erro ao cadastrar ingrediente:', err.response?.data || err);
-      alert(err.response?.data?.error || err.response?.data?.message || 'Erro ao cadastrar adicional.');
+      toast.error(err.response?.data?.error || err.response?.data?.message || 'Erro ao cadastrar adicional.');
     }
   }
 
   return (
     <div className="min-h-screen bg-[#121212] text-[#F3F1E7] p-4 sm:p-6 relative">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
-
-        .sb-root, .sb-root * { font-family: 'Work Sans', sans-serif; }
-        .sb-display { font-family: 'Anton', sans-serif; letter-spacing: 0.02em; }
-        .sb-mono { font-family: 'Space Mono', monospace; }
-
-        .sb-grain { position: fixed; inset: 0; pointer-events: none; z-index: 45; opacity: 0.04; mix-blend-mode: overlay;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-        .sb-hazard { background-image: repeating-linear-gradient(135deg, #FFC700, #FFC700 14px, #121212 14px, #121212 28px); }
-
-        @keyframes sb-fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        .sb-fade-up { animation: sb-fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
-
-        .sb-tape { position: absolute; width: 42px; height: 15px; background: rgba(243,241,231,0.14); border: 1px solid rgba(243,241,231,0.18); box-shadow: 0 2px 4px rgba(0,0,0,0.35); }
-
-        .sb-stencil-btn { position: relative; box-shadow: 3px 3px 0 0 #FF3B2F; transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .sb-stencil-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 #FF3B2F; }
-        .sb-stencil-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 #FF3B2F; }
-
-        .sb-input { background: #121212; border: 1px solid #333; color: #F3F1E7; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .sb-input:focus { border-color: #FFC700; box-shadow: 0 0 0 3px rgba(255,199,0,0.12); outline: none; }
-        .sb-input::placeholder { color: #666; }
-
-        @media (prefers-reduced-motion: reduce) { .sb-fade-up { animation: none !important; } }
-      `}</style>
-
       <div className="sb-root">
         <div className="sb-grain" />
 
@@ -322,6 +302,30 @@ export function AdminMenu() {
                     ))}
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-[#9C9890] uppercase tracking-widest mb-1 sb-mono">
+                  URL da Imagem (Opcional)
+                </label>
+                <input
+                  type="url"
+                  value={productImageUrl}
+                  onChange={(e) => setProductImageUrl(e.target.value)}
+                  placeholder="https://exemplo.com/foto.jpg"
+                  className="sb-input w-full p-2.5 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-[#9C9890] uppercase tracking-widest mb-1 sb-mono">
+                  URL do Modelo 3D (.glb ou .gltf - Opcional)
+                </label>
+                <input
+                  type="url"
+                  value={productModelUrl}
+                  onChange={(e) => setProductModelUrl(e.target.value)}
+                  placeholder="https://exemplo.com/hamburguer.glb"
+                  className="sb-input w-full p-2.5 text-sm"
+                />
               </div>
 
               <button

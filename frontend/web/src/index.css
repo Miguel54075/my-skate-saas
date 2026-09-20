@@ -1,29 +1,147 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Work+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
+/* ===== DESIGN SYSTEM — MY STREET BURGER SAAS ===== */
+
+/* --- Base Reset --- */
 body {
   margin: 0;
-  background-color: #0F0F12;
-  color: #F4F4F5;
-  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  background-color: #121212;
+  color: #F3F1E7;
+  font-family: 'Work Sans', system-ui, -apple-system, sans-serif;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* --- Typography --- */
+.sb-root, .sb-root * { font-family: 'Work Sans', sans-serif; }
+.sb-display { font-family: 'Anton', sans-serif; letter-spacing: 0.02em; }
+.sb-marker { font-family: 'Permanent Marker', cursive; }
+.sb-mono { font-family: 'Space Mono', monospace; }
+
+/* --- Textures --- */
+.sb-grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 45;
+  opacity: 0.04; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-::-webkit-scrollbar-track {
-  background: #0F0F12;
+.sb-grip {
+  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 6px 6px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #27272A;
-  border-radius: 4px;
+.sb-hazard {
+  background-image: repeating-linear-gradient(135deg, #FFC700, #FFC700 14px, #121212 14px, #121212 28px);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3F3F46;
+.sb-ticket-edge {
+  background-image: radial-gradient(circle at 8px 0, transparent 8px, #1B1B1A 8px);
+  background-size: 20px 16px;
+  background-repeat: repeat-x;
+  background-position: top;
 }
+
+/* --- Decorative Tape --- */
+.sb-tape {
+  position: absolute; width: 46px; height: 16px;
+  background: rgba(243,241,231,0.14);
+  border: 1px solid rgba(243,241,231,0.18);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+}
+
+/* --- Headline Style --- */
+.sb-headline {
+  color: #F3F1E7;
+  text-shadow: 3px 3px 0 #FF3B2F;
+}
+
+/* --- Buttons --- */
+.sb-stencil-btn {
+  position: relative;
+  box-shadow: 3px 3px 0 0 #FF3B2F;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.sb-stencil-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 0 #FF3B2F;
+}
+.sb-stencil-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 #FF3B2F;
+}
+.sb-stencil-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* --- Inputs --- */
+.sb-input {
+  background: #121212;
+  border: 1px solid #333;
+  color: #F3F1E7;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sb-input:focus {
+  border-color: #FFC700;
+  box-shadow: 0 0 0 3px rgba(255,199,0,0.12);
+  outline: none;
+}
+.sb-input::placeholder {
+  color: #666;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes sb-fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes sb-fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sb-flicker { 0%, 100% { opacity: 1; } 45% { opacity: 1; } 46% { opacity: 0.3; } 47% { opacity: 1; } 78% { opacity: 1; } 79% { opacity: 0.35; } 80% { opacity: 1; } }
+@keyframes sb-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes sb-float { 0% { transform: translate(0,0) scale(1); opacity: 1; } 70% { opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0.35); opacity: 0; } }
+@keyframes sb-modalIn { 0% { opacity: 0; transform: translateY(24px) rotate(-1.2deg) scale(0.96); } 100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); } }
+@keyframes sb-modalOut { to { opacity: 0; transform: translateY(14px) scale(0.97); } }
+@keyframes sb-kickflip { 0% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(180deg) translateY(-14px); } 100% { transform: rotate(360deg) translateY(0); } }
+@keyframes sb-spark { 0% { opacity: 0.9; transform: scale(1) translateY(0); } 100% { opacity: 0; transform: scale(0.3) translateY(10px); } }
+@keyframes sb-check { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.25) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes sb-cartBump { 0% { transform: scale(1); } 30% { transform: scale(1.05); } 100% { transform: scale(1); } }
+@keyframes sb-wobble { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(4deg); } }
+@keyframes sb-shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
+@keyframes sb-pulseBorder { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,199,0,0.25); } 50% { box-shadow: 0 0 0 6px rgba(255,199,0,0); } }
+@keyframes sb-newOrder { 0% { transform: scale(0.94) rotate(-1deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+
+/* Toast animations */
+@keyframes sb-toastIn { from { opacity: 0; transform: translateY(-12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes sb-toastOut { to { opacity: 0; transform: translateY(-8px) scale(0.95); } }
+
+.sb-fade-up { animation: sb-fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+.sb-fade-in { animation: sb-fadeIn 0.35s ease both; }
+.sb-flicker { animation: sb-flicker 3.6s ease-in-out infinite; }
+.sb-pop { animation: sb-pop 0.35s ease; }
+.sb-fly-badge { position: fixed; z-index: 70; pointer-events: none; animation: sb-float 0.62s cubic-bezier(0.3,0.6,0.4,1) forwards; }
+.sb-modal-in { animation: sb-modalIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+.sb-modal-out { animation: sb-modalOut 0.2s ease forwards; }
+.sb-kickflip { display: inline-block; animation: sb-kickflip 0.9s ease-in-out infinite; }
+.sb-spark { position: absolute; width: 4px; height: 4px; border-radius: 999px; background: #FFC700; animation: sb-spark 0.9s ease-out infinite; }
+.sb-check-pop { animation: sb-check 0.32s cubic-bezier(0.34,1.56,0.64,1) both; }
+.sb-cart-bump { animation: sb-cartBump 0.42s ease; }
+.sb-wobble { animation: sb-wobble 2.4s ease-in-out infinite; }
+.sb-shake { animation: sb-shake 0.5s ease; }
+.sb-pulse-pending { animation: sb-pulseBorder 2.2s ease-in-out infinite; }
+.sb-new-order { animation: sb-newOrder 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+.sb-toast-in { animation: sb-toastIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+.sb-toast-out { animation: sb-toastOut 0.2s ease forwards; }
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .sb-fade-up, .sb-fade-in, .sb-flicker, .sb-pop, .sb-fly-badge,
+  .sb-modal-in, .sb-modal-out, .sb-kickflip, .sb-spark, .sb-check-pop,
+  .sb-cart-bump, .sb-wobble, .sb-shake, .sb-pulse-pending, .sb-new-order,
+  .sb-toast-in, .sb-toast-out { animation: none !important; }
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #121212; }
+::-webkit-scrollbar-thumb { background: #27272A; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3F3F46; }

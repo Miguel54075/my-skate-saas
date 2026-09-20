@@ -37,7 +37,14 @@ if (process.env.ALLOWED_ORIGINS) {
 }
 
 const corsOptions = {
-  origin: true, // Permite qualquer origem automaticamente refletindo o Origin da requisição
+  origin: function (origin, callback) {
+    // Permite requisições sem origin (ex: mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Bloqueado pela política de CORS.'));
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -78,10 +85,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Limitador de requisições contra ataques de força bruta nas rotas de autenticação
+// Rate Limiter: Autenticação (mais restritivo — protege contra brute force)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // limite de 100 requisições por IP por janela
+  max: 50, // limite de 50 requisições por IP por janela
   message: {
     error: 'Muitas requisições a partir deste IP. Tente novamente em 15 minutos.'
   },
@@ -89,10 +96,35 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Rate Limiter: Global (proteção genérica contra DDoS em todas as rotas)
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 500, // limite de 500 requisições por IP por janela
+  message: {
+    error: 'Limite de requisições excedido. Tente novamente em alguns minutos.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate Limiter: Pedidos públicos (anti-spam de pedidos falsos)
+const orderLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: 20, // máximo 20 pedidos por IP em 5 minutos
+  message: {
+    error: 'Muitos pedidos em curto período. Aguarde antes de tentar novamente.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Aplica o rate limiter global em toda a API
+app.use('/api', globalLimiter);
+
 // Rotas da aplicação
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/menu', menuRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/api/orders', orderLimiter, orderRoutes);
 app.use('/api/ingredients', ingredientRoutes);
 
 app.get('/health', async (req, res) => {

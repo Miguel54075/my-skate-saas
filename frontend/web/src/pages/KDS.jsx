@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { socket } from '../services/socket';
+import { useToast } from '../contexts/ToastContext';
 import { Clock, CheckCircle2, Flame, Bike, AlertCircle, PlusCircle, XCircle, Utensils } from 'lucide-react';
 
 export function KDS() {
@@ -9,6 +10,7 @@ export function KDS() {
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState('');
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem('@streetburger:token');
@@ -25,13 +27,13 @@ export function KDS() {
         const user = userRes.data;
 
         if (user.role !== 'ADMIN' && user.role !== 'STAFF') {
-          alert('Acesso negado. Apenas administradores e equipe podem acessar o KDS.');
+          toast.error('Acesso negado. Apenas administradores e equipe podem acessar o KDS.');
           navigate('/login');
           return;
         }
 
         if (!user.tenant) {
-          alert('Usuário não está associado a nenhuma hamburgueria.');
+          toast.error('Usuário não está associado a nenhuma hamburgueria.');
           navigate('/login');
           return;
         }
@@ -77,50 +79,14 @@ export function KDS() {
       await api.patch(`/orders/admin/${orderId}/status`, { status: newStatus });
     } catch (err) {
       console.error('Erro ao atualizar status:', err);
-      alert('Não foi possível atualizar o status do pedido.');
+      toast.error('Não foi possível atualizar o status do pedido.');
     }
   }
 
-  const sharedStyles = (
-    <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&family=Work+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
-
-      .sb-root, .sb-root * { font-family: 'Work Sans', sans-serif; }
-      .sb-display { font-family: 'Anton', sans-serif; letter-spacing: 0.02em; }
-      .sb-marker { font-family: 'Permanent Marker', cursive; }
-      .sb-mono { font-family: 'Space Mono', monospace; }
-
-      .sb-grain { position: fixed; inset: 0; pointer-events: none; z-index: 45; opacity: 0.04; mix-blend-mode: overlay;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-      .sb-hazard { background-image: repeating-linear-gradient(135deg, #FFC700, #FFC700 14px, #121212 14px, #121212 28px); }
-
-      @keyframes sb-fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes sb-flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-      @keyframes sb-pulseBorder { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,199,0,0.25); } 50% { box-shadow: 0 0 0 6px rgba(255,199,0,0); } }
-      @keyframes sb-newOrder { 0% { transform: scale(0.94) rotate(-1deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
-
-      .sb-fade-up { animation: sb-fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-      .sb-flicker { animation: sb-flicker 1.1s ease-in-out infinite; }
-      .sb-pulse-pending { animation: sb-pulseBorder 2.2s ease-in-out infinite; }
-      .sb-new-order { animation: sb-newOrder 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
-
-      .sb-stencil-btn { position: relative; box-shadow: 3px 3px 0 0 rgba(0,0,0,0.5); transition: transform 0.15s ease, box-shadow 0.15s ease; }
-      .sb-stencil-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 rgba(0,0,0,0.5); }
-      .sb-stencil-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 rgba(0,0,0,0.5); }
-
-      .sb-ticket-edge { background-image: radial-gradient(circle at 8px 0, transparent 8px, #1B1B1A 8px); background-size: 20px 16px; background-repeat: repeat-x; background-position: top; }
-
-      @media (prefers-reduced-motion: reduce) {
-        .sb-fade-up, .sb-flicker, .sb-pulse-pending, .sb-new-order { animation: none !important; }
-      }
-    `}</style>
-  );
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center gap-4">
-        {sharedStyles}
         <span className="text-5xl sb-flicker">🔥</span>
         <p className="sb-display text-[#FFC700] uppercase tracking-wide">Carregando painel KDS...</p>
       </div>
@@ -133,7 +99,6 @@ export function KDS() {
 
   return (
     <div className="min-h-screen bg-[#121212] text-[#F3F1E7] p-4 sm:p-6 relative">
-      {sharedStyles}
       <div className="sb-root">
         <div className="sb-grain" />
 
